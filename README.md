@@ -45,10 +45,10 @@ sudo certbot --nginx -d yourdomain.com
    Pull and apply this repo directly on your VPS:
 
     ```bash
-    ansible-pull -U git@github.com:SAM-AEL/ansible-vps.git playbook.yml -i localhost
+    ansible-pull -U https://github.com/SAM-AEL/ansible-vps.git playbook.yml -i localhost
     ```
 
-    - `-U` → your GitHub repo URL  
+    - `-U` → GitHub Repo URL
     - `-i localhost` → run locally on the VPS
 
     This will automatically:
