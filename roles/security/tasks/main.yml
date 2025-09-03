@@ -1,0 +1,71 @@
+- name: Update all packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install essential security and utility packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - ufw
+    - fail2ban
+    - unattended-upgrades
+    - vim
+    - htop
+    - curl
+    - wget
+    - software-properties-common
+    - gnupg
+
+# Configure firewall
+- name: Allow SSH
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: Allow HTTP
+  ufw:
+    rule: allow
+    port: '80'
+
+- name: Allow HTTPS
+  ufw:
+    rule: allow
+    port: '443'
+
+- name: Enable firewall
+  ufw:
+    state: enabled
+
+# Fail2ban: basic configuration
+- name: Ensure fail2ban service is running
+  systemd:
+    name: fail2ban
+    enabled: yes
+    state: started
+
+# Auto security updates
+- name: Enable automatic security updates
+  copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Download-Upgradeable-Packages "1";
+      APT::Periodic::AutocleanInterval "7";
+      APT::Periodic::Unattended-Upgrade "1";
+
+# Disable root login
+- name: Disable root SSH login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+  notify: Restart SSH
+
+# SSH service restart
+- name: Restart SSH
+  systemd:
+    name: ssh
+    state: restarted
+    enabled: yes

@@ -1,0 +1,15 @@
+# Certbot and Nginx
+- name: Install Nginx and Certbot
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - nginx
+    - certbot
+    - python3-certbot-nginx
+
+- name: Ensure Nginx is running
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
