@@ -30,3 +30,47 @@ This Ansible repository provides a **setup for a fresh VPS**, including system h
 - Nginx is running by default; certificates can be issued for your domain:
 ```bash
 sudo certbot --nginx -d yourdomain.com
+```
+
+## Setup
+1. Install Ansible on VPS  
+   SSH into your fresh VPS (as `sam`) and run:
+
+    ```bash
+    sudo apt update && sudo apt upgrade -y
+    sudo apt install ansible git -y
+    ```
+
+2. Run Ansible-pull  
+   Pull and apply this repo directly on your VPS:
+
+    ```bash
+    ansible-pull -U git@github.com:YOUR_USERNAME/ansible-medusa.git playbook.yml -i localhost
+    ```
+
+    - `-U` → your GitHub repo URL  
+    - `-i localhost` → run locally on the VPS
+
+    This will automatically:
+    1. Harden your system  
+    2. Install Docker, Docker Compose, and Git  
+    3. Install Nginx and Certbot
+
+3. Deploy MedusaJS  
+   1. Create a folder for your MedusaJS app, e.g. `/home/sam/app`.  
+   2. Add your `docker-compose.yml` for MedusaJS.  
+   3. Run your app:
+
+        ```bash
+        cd /home/sam/app
+        docker-compose up -d --build
+        ```
+
+   4. Optionally, set up:  
+       - **GitHub webhook** to automatically pull the latest commit and rebuild Docker container.  
+       - **Cron job** alternative (checks every 5 minutes):
+
+            ```bash
+            */5 * * * * cd /home/sam/app && git pull origin main && docker-compose down && docker-compose up -d --build >> /home/sam/app/log.txt 2>&1
+            ```
+
