@@ -18,8 +18,18 @@
     - software-properties-common
     - gnupg
 
-# Configure firewall
-- name: Allow SSH
+# Configure firewall: set explicit defaults then allow needed ports
+- name: Set UFW default incoming deny
+  ufw:
+    direction: incoming
+    policy: deny
+
+- name: Set UFW default outgoing allow
+  ufw:
+    direction: outgoing
+    policy: allow
+
+- name: Allow OpenSSH
   ufw:
     rule: allow
     name: OpenSSH
@@ -59,8 +69,8 @@
 - name: Disable root SSH login
   lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: '^PermitRootLogin'
-    line: 'PermitRootLogin no'
+  regexp: '^#?\s*PermitRootLogin'
+  line: 'PermitRootLogin no'
   notify: Restart SSH
 
 # SSH service restart

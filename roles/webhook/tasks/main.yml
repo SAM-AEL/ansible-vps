@@ -1,0 +1,45 @@
+- name: Install webhook
+  apt:
+    name: webhook
+    state: present
+
+- name: Create webhook hooks.json
+  copy:
+    dest: /etc/webhook/hooks.json
+    content: |
+      [
+        {
+          "id": "deploy-app",
+          "execute-command": "/home/{{ vps_admin_user }}/app/deploy.sh",
+          "command-working-directory": "/home/{{ vps_admin_user }}/app"
+        }
+      ]
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create systemd service for webhook
+  copy:
+    dest: /etc/systemd/system/webhook.service
+    content: |
+      [Unit]
+      Description=GitHub Webhook Listener
+      After=network.target
+
+      [Service]
+  ExecStart=/usr/bin/webhook -hooks /etc/webhook/hooks.json -port {{ webhook_port }} -verbose
+  Restart=always
+  User={{ webhook_user }}
+
+      [Install]
+      WantedBy=multi-user.target
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload systemd and enable webhook
+  systemd:
+    daemon_reload: true
+    name: webhook
+    enabled: true
+    state: started

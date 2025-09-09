@@ -43,14 +43,22 @@
 
 - name: Add user to Docker group
   user:
-    name: "{{ ansible_env.USER }}"
+    name: "{{ vps_admin_user }}"
     groups: docker
     append: yes
 
 - name: Inform user to re-login for Docker group
   debug:
     msg: "User {{ ansible_env.USER }} must log out and log back in, or run 'newgrp docker', for Docker group changes to take effect."
-
 - name: Test Docker hello-world
-  command: docker run hello-world
+  # Check and run the hello-world container only if the image isn't present
+- name: Check for hello-world image
+  command: docker image inspect hello-world
+  register: hello_image_check
+  failed_when: false
+  changed_when: false
+
+- name: Run docker hello-world if image missing
+  command: docker run --rm hello-world
   become: yes
+  when: hello_image_check.rc != 0

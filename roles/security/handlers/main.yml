@@ -1,4 +1,14 @@
-- name: Restart SSH
-  service:
-    name: ssh
-    state: restarted
+ - name: Restart SSH (try common service names)
+  block:
+    - name: Restart ssh service
+      service:
+        name: ssh
+        state: restarted
+      ignore_errors: true
+
+    - name: Restart sshd service
+      service:
+        name: sshd
+        state: restarted
+      when: ansible_facts['os_family'] is defined
+      ignore_errors: true

@@ -1,0 +1,20 @@
+---
+# Central variables for the VPS playbook. These values prefer environment variables
+# when available (useful when sourcing a .env before running the playbook).
+
+# Admin user to add to docker group and to run services
+vps_admin_user: "{{ lookup('env','VPS_ADMIN_USER') | default('sam') }}"
+
+# Domain and email for certbot
+vps_domain: "{{ lookup('env','DOMAIN') | default('') }}"
+vps_email: "{{ lookup('env','EMAIL') | default('admin@example.com') }}"
+
+# Webhook settings
+webhook_port: "{{ lookup('env','WEBHOOK_PORT') | default('9000') }}"
+webhook_user: "{{ lookup('env','WEBHOOK_USER') | default(vps_admin_user) }}"
+
+# UFW allowed ports (comma separated string in .env will be split)
+ufw_allow_ports: "{{ lookup('env','UFW_ALLOW_PORTS') | default('22,80,443') }}"
+
+# Certbot DNS Cloudflare toggle (expects credentials managed via Vault)
+certbot_dns_cloudflare: "{{ lookup('env','CERTBOT_DNS_CLOUDFLARE') | default('false') }}"
